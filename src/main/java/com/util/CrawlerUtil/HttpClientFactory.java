@@ -29,13 +29,14 @@ public class HttpClientFactory {
 	private static Logger logger = LoggerFactory.getLogger(HttpClientFactory.class);
 
 	public static void main(String[] args) {
-		String ur = "https://www.qidian.com/all";
+		/*String ur = "https://www.qidian.com/all";
 		CrawlParam crawlParam = new CrawlParam();
 		crawlParam.setUrlStr(ur);
 		// crawlParam.setOutputPath("E:\\excel\\client.txt");
 		Document docuemnt = getDocuemnt(crawlParam);
 		// String str = downloadFile(crawlParam);
-		System.out.println(docuemnt.toString());
+		System.out.println(docuemnt.toString());*/
+		System.out.println(HttpStatus.SC_OK);
 	}
 
 	/**
@@ -64,7 +65,7 @@ public class HttpClientFactory {
 			// 获得请求状态吗
 			int statuscode = httpMethod.getStatusCode();
 			// 判断是否连接成功
-			if (statuscode != ConstantUtil.HTTP_OK) {
+			if (statuscode != HttpStatus.SC_OK) {
 				logger.info("=====get document failure ,error code is " + statuscode + " , request url is "
 						+ crawlParam.getUrlStr());
 				return null;
