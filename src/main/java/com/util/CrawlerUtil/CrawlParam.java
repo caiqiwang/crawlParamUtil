@@ -30,6 +30,10 @@ public class CrawlParam {
 	// 请求头信息（通常不用设置）
 	private Map<String, String> requestHeadMap;
 	private Map<String, String> postParam;
+	// 代理IP 默认为空
+	private String proxyHost;
+	// 代理端口 默认为空
+	private int proxyPort;
 
 	// post 参数数据 存于map中
 	public Map<String, String> getpostParam() {
@@ -48,6 +52,24 @@ public class CrawlParam {
 
 		this.postParam = infoMap;
 		return this;
+	}
+
+	public CrawlParam setProxyHost(String proxyHost) {
+		this.proxyHost = proxyHost;
+		return this;
+	}
+
+	public String getProxyHost() {
+		return proxyHost;
+	}
+
+	public CrawlParam setProxyPort(int proxyPort) {
+		this.proxyPort = proxyPort;
+		return this;
+	}
+
+	public int getProxyPort() {
+		return proxyPort;
 	}
 
 	public CrawlParam() {

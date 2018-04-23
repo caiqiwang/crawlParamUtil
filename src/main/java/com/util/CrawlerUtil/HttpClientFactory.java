@@ -48,15 +48,16 @@ public class HttpClientFactory {
 	public static String getDocuemntStr(CrawlParam crawlParam) {
 		HttpClient client = new HttpClient(new MultiThreadedHttpConnectionManager());// 保证线程安全
 		HttpMethod httpMethod = getHttpMethod(crawlParam);
-
 		try {
+			// 判断是否使用代理
 			if (crawlParam.isUseProxy()) {
 				HostConfiguration hc = new HostConfiguration();
-				hc.setProxy("", 88);
+				hc.setProxy(crawlParam.getProxyHost(), crawlParam.getProxyPort());
 				client.setHostConfiguration(hc);
 			}
 			// 设置连接超时时间
 			client.getHttpConnectionManager().getParams().setConnectionTimeout(50000);
+			// 设置爬虫间隔频率
 			Thread.sleep(crawlParam.getInterval() + crawlParam.getIntervalRange());
 			// 执行请求 相当于打开网页
 			client.executeMethod(httpMethod);
@@ -118,6 +119,7 @@ public class HttpClientFactory {
 		if (docuemntStr == null) {
 			return null;
 		}
+		// 转换为 document 对象
 		return Jsoup.parse(docuemntStr);
 	}
 
