@@ -3,7 +3,16 @@ package com.util.CrawlerUtil;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class RegexUtil {// 正则工具类
+	private static Logger logger = LoggerFactory.getLogger(HttpClientFactory.class);
+
+	public static void main(String[] args) {
+		String str = "956人付款";
+		System.out.println(matchNumber(str));
+	}
 
 	/**
 	 * @author cqw
@@ -50,5 +59,26 @@ public class RegexUtil {// 正则工具类
 			return match.group(1);
 		}
 		return null;
+	}
+
+	/**
+	 * @author cqw
+	 * @Introduce 匹配字符串中的数字（）
+	 * @Param
+	 * @Return
+	 * @Time 2018年5月8日
+	 */
+	public static String matchNumber(String text) {
+		if (text == null) {
+			logger.error("文本内容为空 请检查");
+			return null;
+		}
+		Pattern pattern = Pattern.compile("(\\d+)");
+		Matcher match = pattern.matcher(text);
+		String number = "";
+		while (match.find()) {
+			number = match.group(1);
+		}
+		return number;
 	}
 }

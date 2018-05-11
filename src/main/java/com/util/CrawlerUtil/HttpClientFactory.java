@@ -3,6 +3,7 @@ package com.util.CrawlerUtil;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -20,6 +21,14 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
@@ -29,14 +38,55 @@ public class HttpClientFactory {
 	private static Logger logger = LoggerFactory.getLogger(HttpClientFactory.class);
 
 	public static void main(String[] args) {
-		/*String ur = "https://www.qidian.com/all";
 		CrawlParam crawlParam = new CrawlParam();
-		crawlParam.setUrlStr(ur);
-		// crawlParam.setOutputPath("E:\\excel\\client.txt");
-		Document docuemnt = getDocuemnt(crawlParam);
-		// String str = downloadFile(crawlParam);
-		System.out.println(docuemnt.toString());*/
-		System.out.println(HttpStatus.SC_OK);
+		crawlParam.setUrlStr(
+				"http://vm36003.baomihua.com/cf835f017d25c3788480cb9e609d535d/5AF2FBBA/3759/37584744_7_ea5eeec884cc9bfbfa22ba5771df21a4.mp4");
+		crawlParam.setOutputPath("E:\\excel\\youku3.mp4");
+		downloadFile(crawlParam);
+	}
+
+	/**
+	 * @author post请求 参数为json格式 只有提交json格式数据才使用
+	 * @Param
+	 * @Return 返回字符串
+	 * @Time 2018年5月9日
+	 */
+	public static String postJsonData(CrawlParam crawlParam) {
+		String response = "";
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		HttpPost httpPost = new HttpPost(crawlParam.getUrlStr());
+		// 添加请求头信息
+		httpPost.setHeader("User-Agent",
+				"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0");
+		if (crawlParam.getRequestHeadMap() != null) {
+			for (Entry<String, String> entry : crawlParam.getRequestHeadMap().entrySet()) {
+				httpPost.setHeader(entry.getKey(), entry.getValue());
+			}
+		}
+		// 添加cookie
+		if (crawlParam.getCookie() != null) {
+			httpPost.setHeader("Cookie", crawlParam.getCookie());
+		}
+		StringEntity se = new StringEntity(crawlParam.getJsonData(), crawlParam.getCharset());
+		se.setContentEncoding("UTF-8");
+		se.setContentType("application/json");
+		httpPost.setEntity(se);
+		try {
+			HttpResponse res = httpclient.execute(httpPost);
+			if (res.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+				HttpEntity entity = res.getEntity();
+				response = EntityUtils.toString(res.getEntity());// 返回json格式：
+
+			}
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return response;
 	}
 
 	/**
@@ -52,9 +102,18 @@ public class HttpClientFactory {
 		try {
 			// 判断是否使用代理
 			if (crawlParam.isUseProxy()) {
-				HostConfiguration hc = new HostConfiguration();
-				hc.setProxy(crawlParam.getProxyHost(), crawlParam.getProxyPort());
-				client.setHostConfiguration(hc);
+				if (crawlParam.getProxyHost() != null) {
+					// 当有host传入是 使用传入的ip
+					HostConfiguration proxy = new HostConfiguration();
+					proxy.setHost(crawlParam.getProxyHost(), crawlParam.getProxyPort());
+					client.setHostConfiguration(proxy);
+				} else {
+					logger.info("请传入代理所需要的host 和port 参数");
+					// 使用网页爬取的IP ProxyUtil.getRandomProxy()随机获取爬取到的一个IP
+					// 这里的ip还是未判断 不建议使用这种方法
+					/*HostConfiguration proxy = ProxyUtil.getRandomProxy();
+					client.setHostConfiguration(proxy);*/
+				}
 			}
 			// 设置连接超时时间
 			client.getHttpConnectionManager().getParams().setConnectionTimeout(50000);
@@ -184,33 +243,38 @@ public class HttpClientFactory {
 		// post 请求
 		if (crawlParam.getRequestMethod().equals(ConstantUtil.REQUEST_POST)) {
 			httpMethod = new PostMethod(crawlParam.getUrlStr());
-			Map<String, String> params = crawlParam.getpostParam();
-			if (params.size() == 0) {
-				logger.info("Post 请求  需要传入参数，请确认");
-				return null;
-			}
-			Iterator paramKeys = params.keySet().iterator();
-			NameValuePair[] form = new NameValuePair[params.size()];
-			int formIndex = 0;
-			while (paramKeys.hasNext()) {
-				String key = (String) paramKeys.next();
-				Object value = params.get(key);
-				if (value != null && value instanceof String && !value.equals("")) {
-					form[formIndex] = new NameValuePair(key, (String) value);
-					formIndex++;
-				} else if (value != null && value instanceof String[] && ((String[]) value).length > 0) {
-					NameValuePair[] tempForm = new NameValuePair[form.length + ((String[]) value).length - 1];
-					for (int i = 0; i < formIndex; i++) {
-						tempForm[i] = form[i];
-					}
-					form = tempForm;
-					for (String v : (String[]) value) {
-						form[formIndex] = new NameValuePair(key, (String) v);
+			if (crawlParam.getIsJsonPost()) {
+				// 传递json数据 crawlParam.getJsonData()
+
+			} else {
+				Map<String, String> params = crawlParam.getpostParam();
+				if (params.size() == 0) {
+					logger.info("Post 请求  需要传入参数，请确认");
+					return null;
+				}
+				Iterator paramKeys = params.keySet().iterator();
+				NameValuePair[] form = new NameValuePair[params.size()];
+				int formIndex = 0;
+				while (paramKeys.hasNext()) {
+					String key = (String) paramKeys.next();
+					Object value = params.get(key);
+					if (value != null && value instanceof String && !value.equals("")) {
+						form[formIndex] = new NameValuePair(key, (String) value);
 						formIndex++;
+					} else if (value != null && value instanceof String[] && ((String[]) value).length > 0) {
+						NameValuePair[] tempForm = new NameValuePair[form.length + ((String[]) value).length - 1];
+						for (int i = 0; i < formIndex; i++) {
+							tempForm[i] = form[i];
+						}
+						form = tempForm;
+						for (String v : (String[]) value) {
+							form[formIndex] = new NameValuePair(key, (String) v);
+							formIndex++;
+						}
 					}
 				}
+				((PostMethod) httpMethod).setRequestBody(form);
 			}
-			((PostMethod) httpMethod).setRequestBody(form);
 		} else { // get 请求
 			httpMethod = new GetMethod(crawlParam.getUrlStr());
 		}

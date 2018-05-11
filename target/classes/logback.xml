@@ -29,11 +29,11 @@
 	<logger name="org.springframework" level="WARN" />
 	
 	<!-- 指定某个包要打印的日志级别，低于该级别的不会打印 -->
-	<logger name="org.mybatis" level="INFO" />
+	<!-- <logger name="com.util" level="DEBUG" /> -->
 
 
 
-	<root level="${app.log.level:-DEBUG}">
+	<root level="${app.log.level:-INFO}">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="rollingFile" />
 	</root>

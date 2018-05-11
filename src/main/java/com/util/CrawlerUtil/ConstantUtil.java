@@ -7,4 +7,6 @@ public class ConstantUtil {
 	// 请求类型
 	public static final String REQUEST_GET = "GET";
 	public static final String REQUEST_POST = "POST";
+	// 所有代理IP存于这个 key中
+	public static final String PROXY_POOL_NAME = "ALLPROXY";
 }

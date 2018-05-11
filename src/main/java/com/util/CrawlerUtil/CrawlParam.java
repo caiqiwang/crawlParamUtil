@@ -30,10 +30,21 @@ public class CrawlParam {
 	// 请求头信息（通常不用设置）
 	private Map<String, String> requestHeadMap;
 	private Map<String, String> postParam;
+	// post请求传递的参数类型。默认为map。true为json格式
+	private Boolean isJsonPost = false;
+	private String jsonData;
 	// 代理IP 默认为空
 	private String proxyHost;
 	// 代理端口 默认为空
 	private int proxyPort;
+
+	public String getJsonData() {
+		return jsonData;
+	}
+
+	public void setJsonData(String jsonData) {
+		this.jsonData = jsonData;
+	}
 
 	// post 参数数据 存于map中
 	public Map<String, String> getpostParam() {
@@ -61,6 +72,15 @@ public class CrawlParam {
 
 	public String getProxyHost() {
 		return proxyHost;
+	}
+
+	public Boolean getIsJsonPost() {
+		return isJsonPost;
+	}
+
+	public CrawlParam setIsJsonPost(Boolean isJsonPost) {
+		this.isJsonPost = isJsonPost;
+		return this;
 	}
 
 	public CrawlParam setProxyPort(int proxyPort) {
