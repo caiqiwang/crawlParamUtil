@@ -1,7 +1,7 @@
 package com.util.CrawlerUtil;
 
 public class ConstantUtil {
-	// 字符常量
+	// 字符常量 测试
 	public static final String DETAIL_CODE = "UTF-8";
 
 	// 请求类型
