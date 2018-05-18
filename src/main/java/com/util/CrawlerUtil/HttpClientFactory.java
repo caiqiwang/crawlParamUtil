@@ -109,10 +109,7 @@ public class HttpClientFactory {
 					client.setHostConfiguration(proxy);
 				} else {
 					logger.info("请传入代理所需要的host 和port 参数");
-					// 使用网页爬取的IP ProxyUtil.getRandomProxy()随机获取爬取到的一个IP
-					// 这里的ip还是未判断 不建议使用这种方法
-					/*HostConfiguration proxy = ProxyUtil.getRandomProxy();
-					client.setHostConfiguration(proxy);*/
+
 				}
 			}
 			// 设置连接超时时间
