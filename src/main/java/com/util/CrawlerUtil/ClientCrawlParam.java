@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public class CrawlParam {
+public class ClientCrawlParam {
 	private final static Random RANDOM = new Random();
 
 	// 访问链接，必须有
@@ -51,7 +51,7 @@ public class CrawlParam {
 		return postParam;
 	}
 
-	public CrawlParam setPostParam(String key, String value) {
+	public ClientCrawlParam setPostParam(String key, String value) {
 		if (this.postParam == null) {
 			this.postParam = new HashMap<String, String>();
 		}
@@ -59,13 +59,13 @@ public class CrawlParam {
 		return this;
 	}
 
-	public CrawlParam setPostParam(Map<String, String> infoMap) {
+	public ClientCrawlParam setPostParam(Map<String, String> infoMap) {
 
 		this.postParam = infoMap;
 		return this;
 	}
 
-	public CrawlParam setProxyHost(String proxyHost) {
+	public ClientCrawlParam setProxyHost(String proxyHost) {
 		this.proxyHost = proxyHost;
 		return this;
 	}
@@ -78,12 +78,12 @@ public class CrawlParam {
 		return isJsonPost;
 	}
 
-	public CrawlParam setIsJsonPost(Boolean isJsonPost) {
+	public ClientCrawlParam setIsJsonPost(Boolean isJsonPost) {
 		this.isJsonPost = isJsonPost;
 		return this;
 	}
 
-	public CrawlParam setProxyPort(int proxyPort) {
+	public ClientCrawlParam setProxyPort(int proxyPort) {
 		this.proxyPort = proxyPort;
 		return this;
 	}
@@ -92,11 +92,11 @@ public class CrawlParam {
 		return proxyPort;
 	}
 
-	public CrawlParam() {
+	public ClientCrawlParam() {
 
 	}
 
-	public CrawlParam(String urlStr) {
+	public ClientCrawlParam(String urlStr) {
 		this.urlStr = urlStr;
 	}
 
@@ -104,7 +104,7 @@ public class CrawlParam {
 		return urlStr;
 	}
 
-	public CrawlParam setUrlStr(String urlStr) {
+	public ClientCrawlParam setUrlStr(String urlStr) {
 		this.urlStr = urlStr;
 		return this;
 	}
@@ -113,7 +113,7 @@ public class CrawlParam {
 		return interval;
 	}
 
-	public CrawlParam setInterval(int interval) {
+	public ClientCrawlParam setInterval(int interval) {
 		this.interval = interval;
 		return this;
 	}
@@ -122,7 +122,7 @@ public class CrawlParam {
 		return intervalRange;
 	}
 
-	public CrawlParam setIntervalRange(int intervalRange) {
+	public ClientCrawlParam setIntervalRange(int intervalRange) {
 		this.intervalRange = RANDOM.nextInt(intervalRange);
 		return this;
 	}
@@ -131,7 +131,7 @@ public class CrawlParam {
 		return requestMethod;
 	}
 
-	public CrawlParam setRequestMethod(String requestMethod) {
+	public ClientCrawlParam setRequestMethod(String requestMethod) {
 		this.requestMethod = requestMethod;
 		return this;
 	}
@@ -149,7 +149,7 @@ public class CrawlParam {
 		return cookie;
 	}
 
-	public CrawlParam setCookie(String cookie) {
+	public ClientCrawlParam setCookie(String cookie) {
 		this.cookie = cookie;
 		return this;
 	}
@@ -158,7 +158,7 @@ public class CrawlParam {
 		return charset;
 	}
 
-	public CrawlParam setCharset(String charset) {
+	public ClientCrawlParam setCharset(String charset) {
 		this.charset = charset;
 		return this;
 	}
@@ -167,7 +167,7 @@ public class CrawlParam {
 		return useProxy;
 	}
 
-	public CrawlParam setUseProxy(boolean useProxy) {
+	public ClientCrawlParam setUseProxy(boolean useProxy) {
 		this.useProxy = useProxy;
 		return this;
 	}
@@ -176,7 +176,7 @@ public class CrawlParam {
 		return useGZip;
 	}
 
-	public CrawlParam setUseGZip(boolean useGZip) {
+	public ClientCrawlParam setUseGZip(boolean useGZip) {
 		this.useGZip = useGZip;
 		return this;
 	}
@@ -185,7 +185,7 @@ public class CrawlParam {
 		return outputPath;
 	}
 
-	public CrawlParam setOutputPath(String outputPath) {
+	public ClientCrawlParam setOutputPath(String outputPath) {
 		this.outputPath = outputPath;
 		return this;
 	}
@@ -194,7 +194,7 @@ public class CrawlParam {
 		return requestHeadMap;
 	}
 
-	public CrawlParam setRequestHeadInfo(String key, String value) {
+	public ClientCrawlParam setRequestHeadInfo(String key, String value) {
 		if (this.requestHeadMap == null) {
 			this.requestHeadMap = new HashMap<String, String>();
 		}
@@ -202,7 +202,7 @@ public class CrawlParam {
 		return this;
 	}
 
-	public CrawlParam setRequestHeadInfo(Map<String, String> infoMap) {
+	public ClientCrawlParam setRequestHeadInfo(Map<String, String> infoMap) {
 
 		this.requestHeadMap = infoMap;
 		return this;

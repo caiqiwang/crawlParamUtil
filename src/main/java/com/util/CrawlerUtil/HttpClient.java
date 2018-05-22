@@ -38,7 +38,7 @@ public class HttpClient {// 该工具类引用apache.http包
 
 	public static void main(String[] args) {
 		String url = "http://www.hzrc.com/ww/b/a/wwba_login.html";
-		CrawlParam crawlParam = new CrawlParam();
+		ClientCrawlParam crawlParam = new ClientCrawlParam();
 		crawlParam.setUrlStr(url);
 		crawlParam.setPostParam("j_username", "15005732520");
 		crawlParam.setPostParam("j_password", "cqw15005732520");
@@ -47,7 +47,7 @@ public class HttpClient {// 该工具类引用apache.http包
 		// String str = doGet(crawlParam);
 	}
 
-	public static Document getDoPostDocument(CrawlParam crawlParam) {
+	public static Document getDoPostDocument(ClientCrawlParam crawlParam) {
 		String docuemntStr = doPost(crawlParam);
 		if (docuemntStr == null) {
 			return null;
@@ -56,7 +56,7 @@ public class HttpClient {// 该工具类引用apache.http包
 		return Jsoup.parse(docuemntStr);
 	}
 
-	public static Document getDoGetDocument(CrawlParam crawlParam) {
+	public static Document getDoGetDocument(ClientCrawlParam crawlParam) {
 		String docuemntStr = doGet(crawlParam);
 		if (docuemntStr == null) {
 			return null;
@@ -65,7 +65,7 @@ public class HttpClient {// 该工具类引用apache.http包
 		return Jsoup.parse(docuemntStr);
 	}
 
-	public static Document getDoGetDocument(CrawlParam crawlParam, int index) {
+	public static Document getDoGetDocument(ClientCrawlParam crawlParam, int index) {
 		String docuemntStr = doGet(crawlParam);
 		while (index > 0 && docuemntStr == null) {
 			index--;
@@ -85,7 +85,7 @@ public class HttpClient {// 该工具类引用apache.http包
 	 * @Return
 	 * @Time 2018年5月15日
 	 */
-	public static String doPost(CrawlParam crawlParam) {
+	public static String doPost(ClientCrawlParam crawlParam) {
 		// 创建Httpclient对象
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		try {
@@ -142,7 +142,7 @@ public class HttpClient {// 该工具类引用apache.http包
 	 * @Return 返回字符串
 	 * @Time 2018年5月9日
 	 */
-	public static String postJsonData(CrawlParam crawlParam) {
+	public static String postJsonData(ClientCrawlParam crawlParam) {
 		String response = "";
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		HttpPost httpPost = new HttpPost(crawlParam.getUrlStr());
@@ -193,7 +193,7 @@ public class HttpClient {// 该工具类引用apache.http包
 	 * @Return
 	 * @Time 2018年5月15日
 	 */
-	public static String doGet(CrawlParam crawlParam) {
+	public static String doGet(ClientCrawlParam crawlParam) {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		HttpGet httpGet = new HttpGet(crawlParam.getUrlStr());
 		try {
@@ -242,7 +242,7 @@ public class HttpClient {// 该工具类引用apache.http包
 	 * @param outputPath
 	 * @return String (文件保存位置绝对路径)
 	 */
-	public static String downloadFile(CrawlParam crawlParam) {
+	public static String downloadFile(ClientCrawlParam crawlParam) {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		HttpGet httpGet = new HttpGet(crawlParam.getUrlStr());
 		try {
@@ -291,7 +291,7 @@ public class HttpClient {// 该工具类引用apache.http包
 	 * @return
 	 * @return
 	 */
-	public static String simulationOn(CrawlParam crawlParam) {
+	public static String simulationOn(ClientCrawlParam crawlParam) {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		try {
 			if (crawlParam.getIsJsonPost()) { // json类型传参

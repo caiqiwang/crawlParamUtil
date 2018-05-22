@@ -69,7 +69,7 @@ public class ProxyUtil {
 	 * @Return 注意代理池用完需要删除。
 	 * @Time 2018年4月27日
 	 */
-	public static void getProxyPool(CrawlParam crawlParam, Jedis jedis, String nameToProxy, String info,
+	public static void getProxyPool(ClientCrawlParam crawlParam, Jedis jedis, String nameToProxy, String info,
 			String proxyObject) {
 		// 先判断xici代理词是否存在
 		if ("xici".equals(proxyObject)) {

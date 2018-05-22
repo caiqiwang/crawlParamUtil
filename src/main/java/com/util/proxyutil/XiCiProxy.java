@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.util.CrawlerUtil.ConstantUtil;
-import com.util.CrawlerUtil.CrawlParam;
+import com.util.CrawlerUtil.ClientCrawlParam;
 import com.util.CrawlerUtil.FileUtil;
 import com.util.CrawlerUtil.HttpClientFactory;
 
@@ -44,7 +44,7 @@ public class XiCiProxy {
 		// 西刺首页
 		String indexUrl = "http://www.xicidaili.com/nn";
 		List<String> list = new ArrayList<>();
-		CrawlParam crawlParam = new CrawlParam();
+		ClientCrawlParam crawlParam = new ClientCrawlParam();
 		String IPInfo = "";
 		for (int i = 0; i < 30; i++) {// 站定爬取1200页ip
 			if (i == 0) {
@@ -109,7 +109,7 @@ public class XiCiProxy {
 			System.out.println("redis中key 为" + ConstantUtil.PROXY_POOL_NAME + "数据已经清空");
 		}
 		String indexUrl = "http://www.xicidaili.com/nn";
-		CrawlParam crawlParam = new CrawlParam();
+		ClientCrawlParam crawlParam = new ClientCrawlParam();
 		String IPInfo = "";
 		for (int i = 0; i < 30; i++) {// 站定爬取1200页ip
 			if (i == 0) {

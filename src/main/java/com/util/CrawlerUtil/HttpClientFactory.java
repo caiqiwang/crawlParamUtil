@@ -42,7 +42,7 @@ public class HttpClientFactory {
 	public static void main(String[] args) {
 
 		String url = "http://www.job98.com/templates/_Common/Membership/Utils.ashx?action=login&tbxPersonalName=1532129385@qq.com&tbxPersonalPassword=cqw1532129385&_=1526970864003&tName=PersonalLogin";
-		CrawlParam crawlParam = new CrawlParam();
+		ClientCrawlParam crawlParam = new ClientCrawlParam();
 		crawlParam.setUrlStr(url);
 		// crawlParam.setPostParam("userName", "15005732520");
 		// crawlParam.setPostParam("goingToURL", "");
@@ -56,7 +56,7 @@ public class HttpClientFactory {
 
 	public static void test(String cookier) {
 		String url = "http://www.job98.com/PersonalResumeList.aspx";
-		CrawlParam crawlParam = new CrawlParam();
+		ClientCrawlParam crawlParam = new ClientCrawlParam();
 		crawlParam.setUrlStr(url);
 		crawlParam.setCookie(cookier);
 		Document document = getDocuemnt(crawlParam);
@@ -69,7 +69,7 @@ public class HttpClientFactory {
 	 * @Return 返回字符串
 	 * @Time 2018年5月9日
 	 */
-	public static String postJsonData(CrawlParam crawlParam) {
+	public static String postJsonData(ClientCrawlParam crawlParam) {
 		String response = "";
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		HttpPost httpPost = new HttpPost(crawlParam.getUrlStr());
@@ -114,7 +114,7 @@ public class HttpClientFactory {
 	 * @Return url页面内容
 	 * @Time 2018年4月20日
 	 */
-	public static String getDocuemntStr(CrawlParam crawlParam) {
+	public static String getDocuemntStr(ClientCrawlParam crawlParam) {
 		HttpClient client = new HttpClient(new MultiThreadedHttpConnectionManager());// 保证线程安全
 		HttpMethod httpMethod = getHttpMethod(crawlParam);
 		try {
@@ -188,7 +188,7 @@ public class HttpClientFactory {
 
 	}
 
-	public static Document getDocuemnt(CrawlParam crawlParam) {
+	public static Document getDocuemnt(ClientCrawlParam crawlParam) {
 
 		String docuemntStr = getDocuemntStr(crawlParam);
 		if (docuemntStr == null) {
@@ -205,7 +205,7 @@ public class HttpClientFactory {
 	 * @param outputPath
 	 * @return String (文件保存位置绝对路径)
 	 */
-	public static String downloadFile(CrawlParam crawlParam) {
+	public static String downloadFile(ClientCrawlParam crawlParam) {
 		HttpClient client = new HttpClient(new MultiThreadedHttpConnectionManager());
 		HttpMethod httpMethod = getHttpMethod(crawlParam);
 		try {
@@ -252,7 +252,7 @@ public class HttpClientFactory {
 	 *            map形式 需要传递 post请求参数和请求方式
 	 * @return cookier 这里获取的cookier 只有包含登录信息，有些页面需要添加完整的cookier才能使用，需要重新拼接。
 	 */
-	public static String simulationOn(CrawlParam crawlParam) {
+	public static String simulationOn(ClientCrawlParam crawlParam) {
 		HttpClient client = new HttpClient(new MultiThreadedHttpConnectionManager());// 保证线程安全
 		HttpMethod httpMethod = getHttpMethod(crawlParam);
 		try {
@@ -317,7 +317,7 @@ public class HttpClientFactory {
 	 * @Return 已经设置好的HttpMethod
 	 * @Time 2018年4月23日
 	 */
-	public static HttpMethod getHttpMethod(CrawlParam crawlParam) {
+	public static HttpMethod getHttpMethod(ClientCrawlParam crawlParam) {
 		HttpMethod httpMethod = null;
 		// post 请求
 		if (crawlParam.getRequestMethod().equals(ConstantUtil.REQUEST_POST)) {
