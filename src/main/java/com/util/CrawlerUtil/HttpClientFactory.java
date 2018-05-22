@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
@@ -31,6 +32,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,11 +40,27 @@ public class HttpClientFactory {
 	private static Logger logger = LoggerFactory.getLogger(HttpClientFactory.class);
 
 	public static void main(String[] args) {
+
+		String url = "http://www.job98.com/templates/_Common/Membership/Utils.ashx?action=login&tbxPersonalName=1532129385@qq.com&tbxPersonalPassword=cqw1532129385&_=1526970864003&tName=PersonalLogin";
 		CrawlParam crawlParam = new CrawlParam();
-		crawlParam.setUrlStr(
-				"http://vm36003.baomihua.com/cf835f017d25c3788480cb9e609d535d/5AF2FBBA/3759/37584744_7_ea5eeec884cc9bfbfa22ba5771df21a4.mp4");
-		crawlParam.setOutputPath("E:\\excel\\youku3.mp4");
-		downloadFile(crawlParam);
+		crawlParam.setUrlStr(url);
+		// crawlParam.setPostParam("userName", "15005732520");
+		// crawlParam.setPostParam("goingToURL", "");
+		// crawlParam.setPostParam("password", "cqw15005732520");
+		// crawlParam.setRequestMethod(ConstantUtil.REQUEST_POST);
+		String cookier = simulationOn(crawlParam);
+
+		// 测试cookier
+		test(cookier);
+	}
+
+	public static void test(String cookier) {
+		String url = "http://www.job98.com/PersonalResumeList.aspx";
+		CrawlParam crawlParam = new CrawlParam();
+		crawlParam.setUrlStr(url);
+		crawlParam.setCookie(cookier);
+		Document document = getDocuemnt(crawlParam);
+		Elements elements = document.select("div[class=ResumeList]");
 	}
 
 	/**
@@ -133,11 +151,11 @@ public class HttpClientFactory {
 				// cookieHeader[]=httpMethod.getResponseHeaders("Cookie");
 				// 读取新的url地址
 				if (header != null) {
-					String newuri = header.getValue();
+					String newurl = header.getValue();
 
-					if ((newuri == null) || (newuri.equals("")))
-						newuri = "/";
-					httpMethod = new GetMethod(newuri);
+					if ((newurl == null) || (newurl.equals("")))
+						// newurl = "/";
+						httpMethod = new GetMethod(newurl);
 					client.executeMethod(httpMethod);
 					// 打印重定向后 结果状态码
 					logger.info("Redirect:" + httpMethod.getStatusLine().toString());
@@ -229,6 +247,70 @@ public class HttpClientFactory {
 	}
 
 	/**
+	 * @Description 模拟页面请求 不使用代理 获取账号信息的cookier
+	 * @param post请求
+	 *            map形式 需要传递 post请求参数和请求方式
+	 * @return cookier 这里获取的cookier 只有包含登录信息，有些页面需要添加完整的cookier才能使用，需要重新拼接。
+	 */
+	public static String simulationOn(CrawlParam crawlParam) {
+		HttpClient client = new HttpClient(new MultiThreadedHttpConnectionManager());// 保证线程安全
+		HttpMethod httpMethod = getHttpMethod(crawlParam);
+		try {
+			// 设置连接超时时间
+			client.getHttpConnectionManager().getParams().setConnectionTimeout(50000);
+			// 设置爬虫间隔频率
+			Thread.sleep(crawlParam.getInterval() + crawlParam.getIntervalRange());
+			// 执行请求 相当于打开网页
+			client.executeMethod(httpMethod);
+			// 获得请求状态吗
+			int statuscode = httpMethod.getStatusCode();
+			// 判断是否连接成功
+			if (statuscode == HttpStatus.SC_OK) {
+				Cookie[] cookies = client.getState().getCookies();
+				StringBuffer tmpcookies = new StringBuffer();
+				for (Cookie c : cookies) {
+					tmpcookies.append(c.toString() + ";");
+					System.out.println("cookies = " + c.toString());
+				}
+				return tmpcookies.toString();
+			} else if ((statuscode == HttpStatus.SC_MOVED_TEMPORARILY)// 判断是否重定向
+					|| (statuscode == HttpStatus.SC_MOVED_PERMANENTLY) || (statuscode == HttpStatus.SC_SEE_OTHER)
+					|| (statuscode == HttpStatus.SC_TEMPORARY_REDIRECT)) {
+				Header header = httpMethod.getResponseHeader("location");
+				// 读取新的url地址
+				if (header != null) {
+					String newurl = header.getValue();
+					System.out.println(newurl);
+					if ((newurl != null) || (!newurl.equals(""))) {
+						crawlParam.setRequestMethod(ConstantUtil.REQUEST_GET);
+						crawlParam.setUrlStr(newurl);
+						httpMethod = getHttpMethod(crawlParam);
+						client.executeMethod(httpMethod);
+						statuscode = httpMethod.getStatusCode();
+						if (statuscode == HttpStatus.SC_OK) {
+							Cookie[] cookies = client.getState().getCookies();
+							StringBuffer tmpcookies = new StringBuffer();
+							for (Cookie c : cookies) {
+								tmpcookies.append(c.toString() + ";");
+								System.out.println("cookies = " + c.toString());
+							}
+							return tmpcookies.toString();
+						}
+					}
+
+				} else {
+					logger.info("Invalid redirect");
+					return null;
+				}
+			}
+		} catch (Exception e) {
+			logger.error("===get document error,request url is  " + crawlParam.getUrlStr(), e);
+			return null;
+		}
+		return null;
+	}
+
+	/**
 	 * @author cqw
 	 * @Introduce 判断get或者post请求，并设置好请求头参数和cookie
 	 * @Param CrawlParam 参数
@@ -242,7 +324,7 @@ public class HttpClientFactory {
 			httpMethod = new PostMethod(crawlParam.getUrlStr());
 			if (crawlParam.getIsJsonPost()) {
 				// 传递json数据 crawlParam.getJsonData()
-
+				logger.info("提交json数据的post请求，调用 postJsonData");
 			} else {
 				Map<String, String> params = crawlParam.getpostParam();
 				if (params.size() == 0) {
@@ -268,6 +350,9 @@ public class HttpClientFactory {
 							form[formIndex] = new NameValuePair(key, (String) v);
 							formIndex++;
 						}
+					} else { // 当post 参数value为""
+						form[formIndex] = new NameValuePair(key, (String) value);
+						formIndex++;
 					}
 				}
 				((PostMethod) httpMethod).setRequestBody(form);

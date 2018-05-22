@@ -1,14 +1,19 @@
 package com.util.CrawlerUtil;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -32,10 +37,14 @@ public class HttpClient {// 该工具类引用apache.http包
 	private static Logger logger = LoggerFactory.getLogger(HttpClient.class);
 
 	public static void main(String[] args) {
-		String url = "http://jinhua.ganji.com/zpdianhuaxiaoshou/";
-		CrawlParam crawlParam = new CrawlParam(url);
-		String str = doGet(crawlParam);
-		System.out.println(str);
+		String url = "http://www.hzrc.com/ww/b/a/wwba_login.html";
+		CrawlParam crawlParam = new CrawlParam();
+		crawlParam.setUrlStr(url);
+		crawlParam.setPostParam("j_username", "15005732520");
+		crawlParam.setPostParam("j_password", "cqw15005732520");
+		crawlParam.setRequestMethod(ConstantUtil.REQUEST_POST);
+		simulationOn(crawlParam);
+		// String str = doGet(crawlParam);
 	}
 
 	public static Document getDoPostDocument(CrawlParam crawlParam) {
@@ -81,6 +90,7 @@ public class HttpClient {// 该工具类引用apache.http包
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		try {
 			HttpPost httpPost = new HttpPost(crawlParam.getUrlStr());
+			// 判断是否使用代理
 			if (crawlParam.isUseProxy()) {
 				HttpHost proxy = new HttpHost(crawlParam.getProxyHost(), crawlParam.getProxyPort());
 				RequestConfig requestConfig = RequestConfig.custom().setProxy(proxy).build();
@@ -136,6 +146,13 @@ public class HttpClient {// 该工具类引用apache.http包
 		String response = "";
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		HttpPost httpPost = new HttpPost(crawlParam.getUrlStr());
+		// 判断是否需要代理
+		if (crawlParam.isUseProxy()) {
+			HttpHost proxy = new HttpHost(crawlParam.getProxyHost(), crawlParam.getProxyPort());
+			RequestConfig requestConfig = RequestConfig.custom().setProxy(proxy).setConnectTimeout(10000)
+					.setSocketTimeout(10000).setConnectionRequestTimeout(3000).build();
+			httpPost.setConfig(requestConfig);
+		}
 		// 添加请求头信息
 		httpPost.setHeader("User-Agent",
 				"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0");
@@ -152,6 +169,7 @@ public class HttpClient {// 该工具类引用apache.http包
 		se.setContentEncoding("UTF-8");
 		se.setContentType("application/json");
 		httpPost.setEntity(se);
+
 		try {
 			HttpResponse res = httpclient.execute(httpPost);
 			if (res.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
@@ -224,7 +242,7 @@ public class HttpClient {// 该工具类引用apache.http包
 	 * @param outputPath
 	 * @return String (文件保存位置绝对路径)
 	 */
-	/*public static String downloadFile(CrawlParam crawlParam) {
+	public static String downloadFile(CrawlParam crawlParam) {
 		CloseableHttpClient httpClient = HttpClients.createDefault();
 		HttpGet httpGet = new HttpGet(crawlParam.getUrlStr());
 		try {
@@ -241,16 +259,85 @@ public class HttpClient {// 该工具类引用apache.http包
 				}
 			}
 			HttpResponse response = httpClient.execute(httpGet);
+			HttpEntity entity = response.getEntity();
 			int statuscode = response.getStatusLine().getStatusCode();
 			if (statuscode != HttpStatus.SC_OK) { // 请求成功
 				logger.info("=====get document failure ,error code is " + statuscode + " , request url is "
 						+ crawlParam.getUrlStr());
-				os.close();
+				// os.close();
 				return null;
 			}
-			
+			InputStream inputStream = entity.getContent();
+			// FileOutputStream fout = new FileOutputStream(file);
+			int bytesRead = 0;
+			byte[] buffer = new byte[8192];
+			while ((bytesRead = inputStream.read(buffer, 0, 8192)) != -1) {
+				os.write(buffer, 0, bytesRead);
+			}
+			os.close();
+			inputStream.close();
+
+			httpGet.releaseConnection();
+			return "下载成功 地址为+" + file.getAbsolutePath();
 		} catch (Exception e) {
 			return "下载失败";
 		}
-	}*/
+	}
+
+	/**
+	 * @Description 模拟登录，需要提供账号 密码 等信息存放到post参数中
+	 * @param crawlParam参数为json类型为post
+	 *            isJsonPost改为true
+	 * @return
+	 * @return
+	 */
+	public static String simulationOn(CrawlParam crawlParam) {
+		CloseableHttpClient httpClient = HttpClients.createDefault();
+		try {
+			if (crawlParam.getIsJsonPost()) { // json类型传参
+				System.out.println("dddd");
+			} else {
+				HttpPost httpPost = new HttpPost(crawlParam.getUrlStr());
+				// 设置请求头
+				httpPost.setHeader("User-Agent",
+						"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0");
+				if (crawlParam.getRequestHeadMap() != null) {
+					for (Entry<String, String> entry : crawlParam.getRequestHeadMap().entrySet()) {
+						httpPost.setHeader(entry.getKey(), entry.getValue());
+					}
+				}
+				// 设置参数
+				List<NameValuePair> postParam = new ArrayList<NameValuePair>();
+				for (Iterator iter = crawlParam.getpostParam().keySet().iterator(); iter.hasNext();) {
+					String name = (String) iter.next();
+					String value = String.valueOf(crawlParam.getpostParam().get(name));
+					postParam.add(new BasicNameValuePair(name, value));
+				}
+				httpPost.setEntity(new UrlEncodedFormEntity(postParam, ConstantUtil.DETAIL_CODE));
+				HttpResponse response = httpClient.execute(httpPost);
+				int statuscode = response.getStatusLine().getStatusCode();
+				if ((statuscode == HttpStatus.SC_MOVED_TEMPORARILY)// 判断是否重定向或者登录成功
+						|| (statuscode == HttpStatus.SC_MOVED_PERMANENTLY) || (statuscode == HttpStatus.SC_SEE_OTHER)
+						|| (statuscode == HttpStatus.SC_TEMPORARY_REDIRECT) || statuscode == HttpStatus.SC_OK) {
+					Header[] headers = response.getAllHeaders();
+					for (Header header : headers) {
+						System.out.println(header.getName() + ": " + header.getValue());
+					}
+					Header[] heade = response.getHeaders("cookier");
+
+				}
+				// 如果模拟登录成功
+				/* if(httpResponse.getStatusLine().getStatusCode() == 200) {2
+				    Header[] headers = httpResponse.getAllHeaders();
+				    for (Header header : headers) {
+				        out.println(header.getName() + ": " + header.getValue());
+				    }
+				}*/
+
+			}
+		} catch (Exception e) {
+			return null;
+		}
+		return null;
+	}
 }
