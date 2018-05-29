@@ -37,13 +37,13 @@ public class HttpClient {// 该工具类引用apache.http包
 	private static Logger logger = LoggerFactory.getLogger(HttpClient.class);
 
 	public static void main(String[] args) {
-		String url = "http://www.hzrc.com/ww/b/a/wwba_login.html";
+		String url = "http://www.hzrc.com/wc/a/a/wcaa_cont.html";
 		ClientCrawlParam crawlParam = new ClientCrawlParam();
 		crawlParam.setUrlStr(url);
-		crawlParam.setPostParam("j_username", "15005732520");
-		crawlParam.setPostParam("j_password", "cqw15005732520");
-		crawlParam.setRequestMethod(ConstantUtil.REQUEST_POST);
-		simulationOn(crawlParam);
+		crawlParam.setCookie(
+				"longinUser=wc; CNZZDATA2145298=cnzz_eid%3D328941854-1527136281-%26ntime%3D1527136281; JSESSIONID=2FuQr6B5a206eCQWspzOeln4Ohk0RIF-qMYd1bw_fQAZ42WxmrFV!-1019999575; UM_distinctid=16390aee6ff2-0d43750df-36675459-13c680-16390aee70033; ");
+		String str = doGet(crawlParam);
+		System.out.println(str.indexOf("简历"));
 		// String str = doGet(crawlParam);
 	}
 
