@@ -8,10 +8,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.TakesScreenshot;
@@ -24,13 +28,13 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 
 public class PhantomJsUtil {
 	public static void main(String[] args) {
-		screenShot("https://search.zbj.com/s/?kw=%E6%8A%A0%E5%9B%BE", "E:\\img\\kt2.png");
-		/*// 模拟登录有赞
+		// screenShot("http://www.qixin.com/", "E:\\img\\qxbs.png");
+		// 模拟登录有赞
 		// 创建无界浏览器对象
-		PhantomJSDriver driver = getHeadlessDriver();
+		// PhantomJSDriver driver = getHeadlessDriver();
 		// 创建测试的火狐浏览器
-		// WebDriver driver = debugWebPage();
-		driver.get("https://login.youzan.com/sso/index?service=kdt");
+		WebDriver driver = debugWebPage();
+		driver.get("https://login.youzan.com/sso/index?service=kdt&from_source=baidu_pz_shouye_0");
 		driver.manage().window().maximize();
 		// driver.navigate().to("http://www.hzrc.com/ww/b/a/wwba_login.html");
 		try {// 睡眠5秒 等待加载
@@ -50,7 +54,7 @@ public class PhantomJsUtil {
 		String code = YunImageIdentify.invoke(imgpath);
 		System.out.println(code);
 		driver.findElement(By.name("captcha_code")).sendKeys(code);
-		
+
 		WebElement login = driver.findElement(
 				By.xpath("/html/body/div[2]/div/div/div[1]/div/div[1]/div[2]/form/fieldset/div[5]/button"));
 		// 模拟点击
@@ -71,7 +75,7 @@ public class PhantomJsUtil {
 		}
 		driver.close();
 		// driver.quit();
-		System.out.println(sb.toString());*/
+		System.out.println(sb.toString());
 	}
 
 	/**

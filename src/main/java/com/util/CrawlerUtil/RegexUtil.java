@@ -63,11 +63,12 @@ public class RegexUtil {// 正则工具类
 
 	/**
 	 * @author cqw
-	 * @Introduce 匹配字符串中的数字（）
+	 * @Introduce 匹配字符串中的数字（只有1组数字时使用）
 	 * @Param
 	 * @Return
 	 * @Time 2018年5月8日
 	 */
+
 	public static String matchNumber(String text) {
 		if (text == null) {
 			logger.error("文本内容为空 请检查");
@@ -81,4 +82,22 @@ public class RegexUtil {// 正则工具类
 		}
 		return number;
 	}
+
+	/**
+	 * @Description 匹配 字符后面的数字 包含小数
+	 * @param charactor
+	 *            特定字符
+	 * @return
+	 * @param text
+	 * @return
+	 */
+	public static String matchNumber(String text, String charactor) {
+		Pattern pattern = Pattern.compile(charactor + "([-\\d.]+)");
+		Matcher match = pattern.matcher(text);
+		if (match.find()) {
+			return match.group(1);
+		}
+		return null;
+	}
+
 }
