@@ -6,6 +6,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.small.crawler.util.document.CrawlParam;
+import com.small.crawler.util.document.HttpURLConnectionFactory;
 import com.util.proxyutil.XiCiProxy;
 
 import redis.clients.jedis.Jedis;
@@ -63,13 +65,13 @@ public class ProxyUtil {
 	/**
 	 * @author cqw
 	 * @Introduce 验证西刺代理池中代理是否可用，并将可用代理存入 nameToProxy中
-	 * @Param nameToProxy可用代理池的key值 不可重复
+	 * @Param nameToProxy可用代理池的key值 不可重复 (暂存1000)
 	 * @Param info 网站正常打开存在的内容 判断代理可用
 	 * @Param proxyObject 代理对象 选择获取那个网站的代理（现只有xici）
-	 * @Return 注意代理池用完需要删除。
+	 * @Return
 	 * @Time 2018年4月27日
 	 */
-	public static void getProxyPool(ClientCrawlParam crawlParam, Jedis jedis, String nameToProxy, String info,
+	public static void getProxyPool(CrawlParam crawlParam, Jedis jedis, String nameToProxy, String info,
 			String proxyObject) {
 		// 先判断xici代理词是否存在
 		if ("xici".equals(proxyObject)) {
@@ -82,29 +84,28 @@ public class ProxyUtil {
 		}
 		// 从redis的所有代理的代理库中随机获取一个ip
 		String IpInfo = jedis.srandmember(ConstantUtil.PROXY_POOL_NAME);
+		// 如果为空 重新抓取代理
+		if (IpInfo == null) {
+			XiCiProxy.getProxy(jedis);
+		}
 		String[] split = IpInfo.split(":"); // 以:作为分隔符，数据格式应为192.168.1.1:4893
 		String host = split[0];
-		int port = Integer.valueOf(split[1]);
-		crawlParam.setProxyHost(host);
-		crawlParam.setProxyPort(port);
-		int i = 5;
-		String document = HttpClientFactory.getDocuemntStr(crawlParam);
-		// 重复取5次 确保ip不能使用
-		while (i > 0 && !(document != null && document.indexOf(info) > 0)) {
-			document = HttpClientFactory.getDocuemntStr(crawlParam);
-			i--;
-		}
-		// 5次后还未空 则删除redis中的ip信息
-		jedis.srem(ConstantUtil.PROXY_POOL_NAME, IpInfo);
-		if (!(document != null && document.indexOf(info) > 0)) {
+		String port = split[1];
+		crawlParam.setUseProxy(true);
+		// 重复取3次 确保ip不能使用
+		crawlParam.setTryCount(3);
+		String document = HttpURLConnectionFactory.getDocumentStr(crawlParam, host, port);
+		// 3次后还为空 则删除redis中的ip信息
+		if (document == null || !document.contains(info)) {
+			jedis.srem(ConstantUtil.PROXY_POOL_NAME, IpInfo);
 			logger.info("成功删除 不可用IP：" + IpInfo);
-			// 递归调用
 			getProxyPool(crawlParam, jedis, nameToProxy, info, proxyObject);
 		} else {
 			// 可用放入新的代理池，并删除老代理池中的数据
 			jedis.sadd(nameToProxy, IpInfo);
-			// 如果可用代理大于15则不继续存放
-			if (jedis.scard(nameToProxy) < 50) {
+			jedis.srem(ConstantUtil.PROXY_POOL_NAME, IpInfo);
+			// 如果可用代理大于1000则不继续存放
+			if (jedis.scard(nameToProxy) < 1000) {
 				getProxyPool(crawlParam, jedis, nameToProxy, info, proxyObject);
 			}
 			return;

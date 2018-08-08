@@ -189,8 +189,8 @@ public class YunImageIdentify {
 	}
 
 	public static void main(String[] args) {
-		String path = "E:\\img\\east.png";
-		String code = invokePhone(path);
+		String path = "E:\\img\\JSJobTel.png";
+		String code = invoke(path, 1012);
 		System.out.println(code);
 	}
 }

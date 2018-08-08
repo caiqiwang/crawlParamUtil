@@ -9,8 +9,8 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.util.CrawlerUtil.ConstantUtil;
 import com.util.CrawlerUtil.ClientCrawlParam;
+import com.util.CrawlerUtil.ConstantUtil;
 import com.util.CrawlerUtil.FileUtil;
 import com.util.CrawlerUtil.HttpClientFactory;
 
@@ -72,8 +72,8 @@ public class XiCiProxy {
 				crawlParam.setUrlStr(nextUrl);
 				Document document = HttpClientFactory.getDocuemnt(crawlParam);
 				if (document == null) {
-					logger.info("首页进入失败，请重试");
-					return;
+					logger.info("翻页失败，请重试");
+					continue;
 				}
 				Elements elements = document.select("table[id=ip_list]");
 				elements = document.select("tbody");
@@ -104,14 +104,14 @@ public class XiCiProxy {
 		/* = new Jedis("127.0.0.1", 6379);
 		jedis.auth("foobared");*/
 		// 每次获取ip前 先删除原先的ip
-		if (jedis.exists(ConstantUtil.PROXY_POOL_NAME)) {
+		/*if (jedis.exists(ConstantUtil.PROXY_POOL_NAME)) {
 			jedis.del(ConstantUtil.PROXY_POOL_NAME);
 			System.out.println("redis中key 为" + ConstantUtil.PROXY_POOL_NAME + "数据已经清空");
-		}
+		}*/
 		String indexUrl = "http://www.xicidaili.com/nn";
 		ClientCrawlParam crawlParam = new ClientCrawlParam();
 		String IPInfo = "";
-		for (int i = 0; i < 30; i++) {// 站定爬取1200页ip
+		for (int i = 0; i < 100; i++) {// 站定爬取100页ip
 			if (i == 0) {
 				crawlParam.setUrlStr(indexUrl);
 				Document document = HttpClientFactory.getDocuemnt(crawlParam);
